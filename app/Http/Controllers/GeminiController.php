@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Gemini\ResponseSchema;
 use Illuminate\Http\Request;
 use App\Services\GeminiService;
 
@@ -9,32 +10,62 @@ class GeminiController extends Controller
 {
     private $geminiService;
 
-        public function __construct(GeminiService $geminiService)
-        {
-            $this->geminiService = $geminiService;
+    public function __construct(GeminiService $geminiService)
+    {
+        $this->geminiService = $geminiService;
+    }
+
+    /**
+     * Generate a response using the GeminiService.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function generateResponse(Request $request)
+    {
+        $message = $request->input('message');
+
+        if (!$message) {
+            return response()->json(['error' => 'Message is required'], 400);
         }
 
-        /**
-         * Generate a response using the GeminiService.
-         *
-         * @param Request $request
-         * @return \Illuminate\Http\JsonResponse
-         */
+        $response = $this->geminiService->generateContent($message);
 
-        public function generateResponse(Request $request)
-        {
-            $message = $request->input('message');
+        return response()->json([
+            'message' => $message,
+            'response' => $response
+        ]);
+    }
 
-            if (!$message) {
-                return response()->json(['error' => 'Message is required'], 400);
+    public function generateStructuredResponse(Request $request)
+    {
+        $message = $request->input('message');
+        $schemaType = $request->input('schema_type');
+
+        if (!$message || !$schemaType) {
+            return response()->json([
+                'error' => 'Message and schema_type are required'
+            ], 400);
+        }
+
+        try {
+            $schema = ResponseSchema::get($schemaType);
+            if (!$schema) {
+                return response()->json(['error' => "Invalid schema type: $schemaType"], 400);
             }
 
-            $response = $this->geminiService->generateContent($message);
+            $response = $this->geminiService->generateStructuredContent($message, $schema);
 
             return response()->json([
                 'message' => $message,
                 'response' => $response
             ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $message,
+                'response' => ['error' => $e->getMessage()]
+            ], 500);
         }
-
+    }
 }
