@@ -9,12 +9,14 @@ use Gemini\Data\Schema;
 
 class GeminiService
 {
-    private $client;
+    private $model;
     private $apiKey;
+    private $client;
 
     public function __construct()
     {
         $this->apiKey = config('services.gemini.api_key');
+        $this->model = config('services.gemini.model');
         $this->client = Gemini::client($this->apiKey);
     }
 
@@ -25,21 +27,21 @@ class GeminiService
      * @param string $model The model to use for content generation. Default is 'gemini-2.0-flash'.
      * @return string|null The generated content or null on failure.
      */
-    public function generateContent($prompt, $model = 'gemini-2.0-flash'): ?string
+    public function generateContent(string $prompt): ?string
     {
         try {
-            $result = $this->client->generativeModel(model: $model)->generateContent($prompt);
+            $result = $this->client->generativeModel(model: $this->model)->generateContent($prompt);
             return $result->text();
         } catch (\Exception $e) {
             return null;
         }
     }
 
-    public function generateStructuredContent(string $prompt, Schema $schema, string $model = 'gemini-2.0-flash'): ?array
+    public function generateStructuredContent(string $prompt, Schema $schema): ?array
     {
         try {
             $result = $this->client
-                ->generativeModel(model: $model)
+                ->generativeModel(model: $this->model)
                 ->withGenerationConfig(new GenerationConfig(
                     responseMimeType: ResponseMimeType::APPLICATION_JSON,
                     responseSchema: $schema

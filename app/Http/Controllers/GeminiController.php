@@ -38,6 +38,13 @@ class GeminiController extends Controller
         ]);
     }
 
+    /**
+     * Generate a structured response using the GeminiService and a specified schema.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
     public function generateStructuredResponse(Request $request)
     {
         $message = $request->input('message');
