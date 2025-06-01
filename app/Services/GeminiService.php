@@ -6,6 +6,9 @@ use Gemini;
 use Gemini\Data\GenerationConfig;
 use Gemini\Enums\ResponseMimeType;
 use Gemini\Data\Schema;
+use Gemini\Data\Blob;
+use Gemini\Enums\MimeType;
+use Illuminate\Http\UploadedFile;
 
 class GeminiService
 {
@@ -24,9 +27,9 @@ class GeminiService
      * Generate content using the specified model.
      *
      * @param string $prompt The input prompt for content generation.
-     * @param string $model The model to use for content generation. Default is 'gemini-2.0-flash'.
      * @return string|null The generated content or null on failure.
      */
+
     public function generateContent(string $prompt): ?string
     {
         try {
@@ -36,6 +39,14 @@ class GeminiService
             return null;
         }
     }
+
+    /**
+     * Generate structured content using Gemini based on a defined response schema.
+     *
+     * @param string $prompt The input prompt for content generation.
+     * @param Schema $schema The expected schema that defines the response structure.
+     * @return array|null The structured response as an associative array, or null on failure.
+     */
 
     public function generateStructuredContent(string $prompt, Schema $schema): ?array
     {
@@ -49,6 +60,48 @@ class GeminiService
                 ->generateContent($prompt);
 
             return json_decode(json_encode($result->json()), true);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Generate content using both text and image input.
+     *
+     * @param string $prompt Text prompt describing what you want.
+     * @param string $imageUrl URL or local path to the image file.
+     * @return string|null The generated response text or null on failure.
+     */
+
+    public function generateContentWithImage(string $prompt, UploadedFile $image_file): ?string
+    {
+        try {
+            $imageData = file_get_contents($image_file->getRealPath());
+
+            $mimeType = match ($image_file->getMimeType()) {
+                'image/jpeg' => MimeType::IMAGE_JPEG,
+                'image/png' => MimeType::IMAGE_PNG,
+                'image/webp' => MimeType::IMAGE_WEBP,
+                default => null,
+            };
+
+            if (!$mimeType) {
+                throw new \Exception('Unsupported image MIME type');
+            }
+
+            $blob = new Blob(
+                mimeType: $mimeType,
+                data: base64_encode($imageData)
+            );
+
+            $result = $this->client
+                ->generativeModel(model: $this->model)
+                ->generateContent([
+                    $prompt,
+                    $blob
+                ]);
+
+            return $result->text();
         } catch (\Exception $e) {
             return null;
         }

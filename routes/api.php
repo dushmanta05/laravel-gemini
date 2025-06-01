@@ -10,3 +10,4 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/gemini/generate', [GeminiController::class, 'generateResponse']);
 Route::post('/gemini/generate-structured', [GeminiController::class, 'generateStructuredResponse']);
+Route::post('/gemini/generate-with-image', [GeminiController::class, 'generateResponseWithImage']);
