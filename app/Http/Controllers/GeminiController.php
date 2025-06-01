@@ -6,6 +6,7 @@ use App\Gemini\ResponseSchema;
 use Illuminate\Http\Request;
 use App\Services\GeminiService;
 use Illuminate\Http\JsonResponse;
+use Log;
 
 class GeminiController extends Controller
 {
@@ -106,6 +107,39 @@ class GeminiController extends Controller
             return response()->json(data: [
                 'error' => 'Failed to process image: ' . $e->getMessage()
             ], status: 500);
+        }
+    }
+
+    /**
+     * Handle file upload (PDF/MP4) and send prompt to Gemini for analysis.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+
+    public function analyzeUploadedFile(Request $request): JsonResponse
+    {
+        $prompt = $request->input('message');
+        $file = $request->file('file');
+
+        if (!$prompt || !$file) {
+            return response()->json([
+                'error' => 'Both message and file are required.'
+            ], 400);
+        }
+
+        try {
+            $response = $this->geminiService->analyzeUploadedFile($file, $prompt);
+
+            return response()->json([
+                'message' => $prompt,
+                'response' => $response
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Gemini file processing error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Failed to analyze file: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

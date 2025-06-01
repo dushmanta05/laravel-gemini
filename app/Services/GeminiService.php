@@ -4,11 +4,13 @@ namespace App\Services;
 
 use Gemini;
 use Gemini\Data\GenerationConfig;
+use Gemini\Enums\FileState;
 use Gemini\Enums\ResponseMimeType;
 use Gemini\Data\Schema;
 use Gemini\Data\Blob;
 use Gemini\Enums\MimeType;
 use Illuminate\Http\UploadedFile;
+use Gemini\Data\UploadedFile as GeminiUploadedFile;
 
 class GeminiService
 {
@@ -106,4 +108,51 @@ class GeminiService
             return null;
         }
     }
+
+    /**
+     * Upload a file and analyze it using the given prompt.
+     *
+     * @param UploadedFile $file
+     * @param string $prompt
+     * @return string|null
+     */
+
+    public function analyzeUploadedFile(UploadedFile $file, string $prompt): ?string
+    {
+        $mimeType = match ($file->getMimeType()) {
+            'application/pdf' => MimeType::APPLICATION_PDF,
+            'video/mp4' => MimeType::VIDEO_MP4,
+            default => throw new \Exception('Unsupported MIME type'),
+        };
+
+        $meta = $this->client->files()->upload(
+            filename: $file->getRealPath(),
+            mimeType: $mimeType,
+            displayName: $file->getClientOriginalName()
+        );
+
+        do {
+            sleep(2);
+            $meta = $this->client->files()->metadataGet($meta->uri);
+        } while (!$meta->state->complete());
+
+        if ($meta->state === FileState::Failed) {
+            throw new \Exception('File processing failed');
+        }
+
+        $uploaded_file = new GeminiUploadedFile(
+            fileUri: $meta->uri,
+            mimeType: $mimeType
+        );
+
+        $result = $this->client
+            ->generativeModel(model: $this->model)
+            ->generateContent([
+                $prompt,
+                $uploaded_file
+            ]);
+
+        return $result->text();
+    }
+
 }
