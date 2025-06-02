@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Services\GeminiService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
-use Log;
+use Illuminate\Support\Str;
+use App\Models\Chat;
+use App\Models\ChatMessage;
 
 class GeminiController extends Controller
 {
@@ -137,7 +139,6 @@ class GeminiController extends Controller
                 'response' => $response
             ]);
         } catch (\Exception $e) {
-            Log::error('Gemini file processing error: ' . $e->getMessage());
             return response()->json([
                 'error' => 'Failed to analyze file: ' . $e->getMessage()
             ], 500);
@@ -169,5 +170,37 @@ class GeminiController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function generateChatResponse(Request $request): JsonResponse
+    {
+        $request->validate([
+            'message' => 'required|string',
+            'chat_id' => 'nullable|uuid'
+        ]);
+
+        $message = $request->input('message');
+        $chatId = $request->input('chat_id');
+
+        $chat = $chatId ? Chat::find($chatId) : Chat::create();
+
+        $response = $this->geminiService->generateContent($message);
+
+        if (!$response) {
+            return response()->json(['error' => 'Failed to get a valid response from Gemini'], 500);
+        }
+
+
+        ChatMessage::create([
+            'chat_id' => $chat->id,
+            'user' => $message,
+            'model' => $response,
+        ]);
+
+        return response()->json([
+            'chat_id' => $chatId,
+            'message' => $message,
+            'response' => $response
+        ]);
     }
 }

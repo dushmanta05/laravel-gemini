@@ -13,3 +13,4 @@ Route::post('/gemini/generate-structured', [GeminiController::class, 'generateSt
 Route::post('/gemini/generate-with-image', [GeminiController::class, 'generateResponseWithImage']);
 Route::post('/gemini/analyze-with-file', [GeminiController::class, 'analyzeUploadedFile']);
 Route::post('/gemini/analyze-video', [GeminiController::class, 'analyzeVideoFile']);
+Route::post('/gemini/chat', [GeminiController::class, 'generateChatResponse']);
