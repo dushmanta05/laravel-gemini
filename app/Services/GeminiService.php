@@ -5,7 +5,12 @@ namespace App\Services;
 use Exception;
 use Gemini;
 use Gemini\Data\Content;
+use Gemini\Data\FunctionDeclaration;
+use Gemini\Data\FunctionResponse;
 use Gemini\Data\GenerationConfig;
+use Gemini\Data\Part;
+use Gemini\Data\Tool;
+use Gemini\Enums\DataType;
 use Gemini\Enums\FileState;
 use Gemini\Enums\ResponseMimeType;
 use Gemini\Data\Schema;
@@ -256,5 +261,63 @@ class GeminiService
         } catch (Exception $e) {
             throw new RuntimeException('Streaming failed: ' . $e->getMessage());
         }
+    }
+
+    public function handleFunctionCall(string $prompt): string
+    {
+        $tool = new Tool(
+            functionDeclarations: [
+                new FunctionDeclaration(
+                    name: 'multiply',
+                    description: 'Multiplies two numbers',
+                    parameters: new Schema(
+                        type: DataType::OBJECT,
+                        properties: [
+                            'a' => new Schema(
+                                type: DataType::NUMBER,
+                                description: 'First number'
+                            ),
+                            'b' => new Schema(
+                                type: DataType::NUMBER,
+                                description: 'Second number'
+                            ),
+                        ],
+                        required: ['a', 'b']
+                    )
+                )
+            ]
+        );
+
+        $chat = $this->client
+            ->generativeModel($this->model)
+            ->withTool($tool)
+            ->startChat();
+
+        $response = $chat->sendMessage($prompt);
+
+        if ($response->parts()[0]->functionCall !== null) {
+            $functionCall = $response->parts()[0]->functionCall;
+
+            if ($functionCall->name === 'multiply') {
+                $a = $functionCall->args['a'];
+                $b = $functionCall->args['b'];
+
+                $functionResponse = new Content(
+                    parts: [
+                        new Part(
+                            functionResponse: new FunctionResponse(
+                                name: 'multiply',
+                                response: ['result' => $a * $b],
+                            )
+                        )
+                    ],
+                    role: Role::USER
+                );
+
+                $response = $chat->sendMessage($functionResponse);
+            }
+        }
+
+        return $response->text();
     }
 }

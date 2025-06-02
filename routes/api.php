@@ -15,3 +15,4 @@ Route::post('/gemini/analyze-with-file', [GeminiController::class, 'analyzeUploa
 Route::post('/gemini/analyze-video', [GeminiController::class, 'analyzeVideoFile']);
 Route::post('/gemini/chat', [GeminiController::class, 'generateChatResponse']);
 Route::post('/gemini/stream', [GeminiController::class, 'streamResponse']);
+Route::post('/gemini/function-call', [GeminiController::class, 'callFunction']);

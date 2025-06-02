@@ -243,4 +243,23 @@ class GeminiController extends Controller
         ]);
     }
 
+    public function callFunction(Request $request): JsonResponse
+    {
+        $request->validate([
+            'message' => 'required|string',
+        ]);
+
+        try {
+            $response = $this->geminiService->handleFunctionCall($request->input('message'));
+
+            return response()->json([
+                'message' => $request->input('message'),
+                'response' => $response,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
