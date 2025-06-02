@@ -310,4 +310,24 @@ class GeminiService
 
         return $response->text();
     }
+
+    /**
+     * Count tokens for a given prompt string.
+     *
+     * @param string $prompt
+     * @return int Total number of tokens in the prompt
+     * @throws RuntimeException on failure
+     */
+    public function countTokens(string $prompt): int
+    {
+        try {
+            $response = $this->client
+                ->generativeModel($this->model)
+                ->countTokens($prompt);
+
+            return $response->totalTokens;
+        } catch (Exception $e) {
+            throw new RuntimeException('Failed to count tokens: ' . $e->getMessage());
+        }
+    }
 }

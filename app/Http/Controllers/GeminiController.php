@@ -262,4 +262,15 @@ class GeminiController extends Controller
             ], 500);
         }
     }
+
+    public function countTokensInPrompt(Request $request)
+    {
+        $request->validate([
+            'message' => 'required|string',
+        ]);
+
+        $tokensCount = $this->geminiService->countTokens($request->input('message'));
+
+        return response()->json(['tokens' => $tokensCount]);
+    }
 }
