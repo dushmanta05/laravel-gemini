@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Gemini\ResponseSchema;
 use Exception;
 use Gemini;
 use Gemini\Data\Content;
@@ -265,25 +266,14 @@ class GeminiService
 
     public function handleFunctionCall(string $prompt): string
     {
+        $schema = ResponseSchema::get('multiply');
+
         $tool = new Tool(
             functionDeclarations: [
                 new FunctionDeclaration(
                     name: 'multiply',
                     description: 'Multiplies two numbers',
-                    parameters: new Schema(
-                        type: DataType::OBJECT,
-                        properties: [
-                            'a' => new Schema(
-                                type: DataType::NUMBER,
-                                description: 'First number'
-                            ),
-                            'b' => new Schema(
-                                type: DataType::NUMBER,
-                                description: 'Second number'
-                            ),
-                        ],
-                        required: ['a', 'b']
-                    )
+                    parameters: $schema
                 )
             ]
         );

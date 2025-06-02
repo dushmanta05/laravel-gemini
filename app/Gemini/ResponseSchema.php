@@ -12,6 +12,7 @@ class ResponseSchema
         return match ($type) {
             'recipe' => self::recipeSchema(),
             'details' => self::detailsSchema(),
+            'multiply' => self::multiplySchema(),
             default => null,
         };
     }
@@ -49,6 +50,24 @@ class ResponseSchema
                 'description' => new Schema(type: DataType::STRING),
             ],
             required: ['response_message', 'title', 'description']
+        );
+    }
+
+    private static function multiplySchema(): Schema
+    {
+        return new Schema(
+            type: DataType::OBJECT,
+            properties: [
+                'a' => new Schema(
+                    type: DataType::NUMBER,
+                    description: 'First number'
+                ),
+                'b' => new Schema(
+                    type: DataType::NUMBER,
+                    description: 'Second number'
+                ),
+            ],
+            required: ['a', 'b']
         );
     }
 }
