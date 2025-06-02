@@ -14,3 +14,4 @@ Route::post('/gemini/generate-with-image', [GeminiController::class, 'generateRe
 Route::post('/gemini/analyze-with-file', [GeminiController::class, 'analyzeUploadedFile']);
 Route::post('/gemini/analyze-video', [GeminiController::class, 'analyzeVideoFile']);
 Route::post('/gemini/chat', [GeminiController::class, 'generateChatResponse']);
+Route::post('/gemini/stream', [GeminiController::class, 'streamResponse']);

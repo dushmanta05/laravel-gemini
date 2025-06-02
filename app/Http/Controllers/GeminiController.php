@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Gemini\ResponseSchema;
+use Exception;
 use Illuminate\Http\Request;
 use App\Services\GeminiService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
+use Illuminate\Http\Response;
 use App\Models\Chat;
 use App\Models\ChatMessage;
 
@@ -73,7 +74,7 @@ class GeminiController extends Controller
                 'message' => $message,
                 'response' => $response
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => $message,
                 'response' => ['error' => $e->getMessage()]
@@ -106,7 +107,7 @@ class GeminiController extends Controller
                 'message' => $prompt,
                 'response' => $response
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(data: [
                 'error' => 'Failed to process image: ' . $e->getMessage()
             ], status: 500);
@@ -138,7 +139,7 @@ class GeminiController extends Controller
                 'message' => $prompt,
                 'response' => $response
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => 'Failed to analyze file: ' . $e->getMessage()
             ], 500);
@@ -167,7 +168,7 @@ class GeminiController extends Controller
             ]);
         } catch (ValidationException $ve) {
             return response()->json(['error' => $ve->errors()], 422);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -210,4 +211,36 @@ class GeminiController extends Controller
             'response' => $responseText
         ]);
     }
+
+    /**
+     * Stream content from Gemini in real-time based on the given prompt.
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function streamResponse(Request $request)
+    {
+        $request->validate([
+            'message' => 'required|string',
+        ]);
+
+        $prompt = $request->input('message');
+
+        $generator = $this->geminiService->streamGenerateContent($prompt);
+
+        return response()->stream(function () use ($generator) {
+            ob_implicit_flush(true);
+
+            foreach ($generator as $chunk) {
+                echo $chunk;
+                ob_flush();
+                flush();
+            }
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+        ]);
+    }
+
 }

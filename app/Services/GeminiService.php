@@ -12,6 +12,7 @@ use Gemini\Data\Schema;
 use Gemini\Data\Blob;
 use Gemini\Enums\MimeType;
 use Gemini\Enums\Role;
+use Generator;
 use Illuminate\Http\UploadedFile;
 use Gemini\Data\UploadedFile as GeminiUploadedFile;
 use Illuminate\Support\Collection;
@@ -231,6 +232,29 @@ class GeminiService
             return $response->text();
         } catch (Exception $e) {
             throw new RuntimeException('An unexpected error occurred: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Stream content generation from Gemini for a given prompt.
+     *
+     * @param string $prompt The user prompt to send to the model.
+     * @return Generator A generator yielding streamed text chunks from the model.
+     *
+     * @throws RuntimeException If an error occurs while streaming.
+     */
+    public function streamGenerateContent(string $prompt): Generator
+    {
+        try {
+            $stream = $this->client
+                ->generativeModel($this->model)
+                ->streamGenerateContent($prompt);
+
+            foreach ($stream as $chunk) {
+                yield $chunk->text();
+            }
+        } catch (Exception $e) {
+            throw new RuntimeException('Streaming failed: ' . $e->getMessage());
         }
     }
 }
