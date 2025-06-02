@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Gemini\GeminiConfig;
 use App\Gemini\ResponseSchema;
 use Exception;
 use Gemini;
@@ -329,5 +330,18 @@ class GeminiService
         } catch (Exception $e) {
             throw new RuntimeException('Failed to count tokens: ' . $e->getMessage());
         }
+    }
+
+    public function generateWithConfig(string $prompt): string
+    {
+        $model = $this->client
+            ->generativeModel($this->model)
+            ->withSafetySetting(GeminiConfig::getSafetySettingDangerousContent())
+            ->withSafetySetting(GeminiConfig::getSafetySettingHateSpeech())
+            ->withGenerationConfig(GeminiConfig::getGenerationConfig());
+
+        $response = $model->generateContent($prompt);
+
+        return $response->text();
     }
 }

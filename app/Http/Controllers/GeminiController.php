@@ -11,6 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Response;
 use App\Models\Chat;
 use App\Models\ChatMessage;
+use Throwable;
 
 class GeminiController extends Controller
 {
@@ -272,5 +273,28 @@ class GeminiController extends Controller
         $tokensCount = $this->geminiService->countTokens($request->input('message'));
 
         return response()->json(['tokens' => $tokensCount]);
+    }
+
+    public function generateWithConfig(Request $request, GeminiService $geminiService)
+    {
+        $request->validate([
+            'message' => 'required|string',
+        ]);
+
+        $message = $request->input('message');
+
+        try {
+            $response = $geminiService->generateWithConfig($message);
+
+            return response()->json([
+                'success' => true,
+                'output' => $response,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
