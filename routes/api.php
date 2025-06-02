@@ -12,3 +12,4 @@ Route::post('/gemini/generate', [GeminiController::class, 'generateResponse']);
 Route::post('/gemini/generate-structured', [GeminiController::class, 'generateStructuredResponse']);
 Route::post('/gemini/generate-with-image', [GeminiController::class, 'generateResponseWithImage']);
 Route::post('/gemini/analyze-with-file', [GeminiController::class, 'analyzeUploadedFile']);
+Route::post('/gemini/analyze-video', [GeminiController::class, 'analyzeVideoFile']);

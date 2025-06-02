@@ -6,6 +6,7 @@ use App\Gemini\ResponseSchema;
 use Illuminate\Http\Request;
 use App\Services\GeminiService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 use Log;
 
 class GeminiController extends Controller
@@ -140,6 +141,33 @@ class GeminiController extends Controller
             return response()->json([
                 'error' => 'Failed to analyze file: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function analyzeVideoFile(Request $request): JsonResponse
+    {
+        $request->validate([
+            'video' => 'required|file|mimetypes:video/mp4|max:10240',
+            'message' => 'required|string|max:255',
+        ], [
+            'video.mimetypes' => 'Only MP4 video files are supported.',
+            'video.max' => 'The video must be less than 10MB.',
+        ]);
+
+        try {
+            $videoFile = $request->file('video');
+            $message = $request->input('message');
+
+            $responseText = $this->geminiService->analyzeUploadedVideo($videoFile, $message);
+
+            return response()->json([
+                'message' => $message,
+                'description' => $responseText,
+            ]);
+        } catch (ValidationException $ve) {
+            return response()->json(['error' => $ve->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

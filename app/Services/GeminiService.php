@@ -167,4 +167,27 @@ class GeminiService
         return $result->text();
     }
 
+    /**
+     * Uploads a video file and generates a description using the Gemini model.
+     *
+     * @param UploadedFile $file The uploaded MP4 video file.
+     * @param string $prompt The prompt describing what you want to ask about the video.
+     * 
+     * @return string|null The generated AI description or null on failure.
+     *
+     * @throws \Exception If the file is not MP4 or upload fails.
+     */
+    public function analyzeUploadedVideo(UploadedFile $file, string $prompt): ?string
+    {
+        $uploadedFile = $this->uploadFileToGeminiStorage($file);
+
+        $result = $this->client
+            ->generativeModel(model: $this->model)
+            ->generateContent([
+                $prompt,
+                $uploadedFile
+            ]);
+
+        return $result->text();
+    }
 }
