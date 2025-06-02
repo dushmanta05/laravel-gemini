@@ -28,7 +28,6 @@ class GeminiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-
     public function generateResponse(Request $request): JsonResponse
     {
         $message = $request->input('message');
@@ -51,7 +50,6 @@ class GeminiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-
     public function generateStructuredResponse(Request $request): JsonResponse
     {
         $message = $request->input('message');
@@ -89,7 +87,6 @@ class GeminiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-
     public function generateResponseWithImage(Request $request): JsonResponse
     {
         $prompt = $request->input(key: 'message');
@@ -121,7 +118,6 @@ class GeminiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-
     public function analyzeUploadedFile(Request $request): JsonResponse
     {
         $prompt = $request->input('message');
@@ -147,6 +143,12 @@ class GeminiController extends Controller
         }
     }
 
+    /**
+     * Analyze an uploaded MP4 video file with a given message prompt.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function analyzeVideoFile(Request $request): JsonResponse
     {
         $request->validate([
@@ -174,6 +176,12 @@ class GeminiController extends Controller
         }
     }
 
+    /**
+     * Generate a chat response using previous chat history if provided.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function generateChatResponse(Request $request): JsonResponse
     {
         $request->validate([
@@ -244,6 +252,12 @@ class GeminiController extends Controller
         ]);
     }
 
+    /**
+     * Handle a function call prompt using Gemini's capabilities.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function callFunction(Request $request): JsonResponse
     {
         $request->validate([
@@ -264,6 +278,12 @@ class GeminiController extends Controller
         }
     }
 
+    /**
+     * Count the number of tokens in the provided message prompt.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function countTokensInPrompt(Request $request)
     {
         $request->validate([
@@ -275,6 +295,13 @@ class GeminiController extends Controller
         return response()->json(['tokens' => $tokensCount]);
     }
 
+    /**
+     * Generate a Gemini response with custom configuration settings.
+     *
+     * @param Request $request
+     * @param GeminiService $geminiService
+     * @return JsonResponse
+     */
     public function generateWithConfig(Request $request, GeminiService $geminiService)
     {
         $request->validate([

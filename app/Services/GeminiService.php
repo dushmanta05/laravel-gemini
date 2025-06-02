@@ -12,7 +12,6 @@ use Gemini\Data\FunctionResponse;
 use Gemini\Data\GenerationConfig;
 use Gemini\Data\Part;
 use Gemini\Data\Tool;
-use Gemini\Enums\DataType;
 use Gemini\Enums\FileState;
 use Gemini\Enums\ResponseMimeType;
 use Gemini\Data\Schema;
@@ -44,13 +43,12 @@ class GeminiService
      * @param string $prompt The input prompt for content generation.
      * @return string|null The generated content or null on failure.
      */
-
     public function generateContent(string $prompt): ?string
     {
         try {
             $result = $this->client->generativeModel(model: $this->model)->generateContent($prompt);
             return $result->text();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }
@@ -62,7 +60,6 @@ class GeminiService
      * @param Schema $schema The expected schema that defines the response structure.
      * @return array|null The structured response as an associative array, or null on failure.
      */
-
     public function generateStructuredContent(string $prompt, Schema $schema): ?array
     {
         try {
@@ -83,11 +80,12 @@ class GeminiService
     /**
      * Generate content using both text and image input.
      *
-     * @param string $prompt Text prompt describing what you want.
-     * @param string $imageUrl URL or local path to the image file.
-     * @return string|null The generated response text or null on failure.
+     * @param string $prompt Text prompt describing the request.
+     * @param UploadedFile $image_file The uploaded image file.
+     * @return string|null The generated text response or null on failure.
+     *
+     * @throws Exception If image processing or generation fails.
      */
-
     public function generateContentWithImage(string $prompt, UploadedFile $image_file): ?string
     {
         try {
@@ -127,7 +125,7 @@ class GeminiService
      *
      * @param UploadedFile $file The uploaded file instance from the request.
      * @return GeminiUploadedFile A Gemini UploadedFile instance with file URI and MIME type.
-     * @throws \Exception If the MIME type is unsupported or file processing fails.
+     * @throws Exception If the MIME type is unsupported or file processing fails.
      */
     public function uploadFileToGeminiStorage(UploadedFile $file): GeminiUploadedFile
     {
@@ -165,7 +163,6 @@ class GeminiService
      * @param string $prompt
      * @return string|null
      */
-
     public function analyzeUploadedFile(UploadedFile $file, string $prompt): ?string
     {
         $uploaded_file = $this->uploadFileToGeminiStorage($file);
@@ -181,14 +178,13 @@ class GeminiService
     }
 
     /**
-     * Uploads a video file and generates a description using the Gemini model.
+     * Upload a file and analyze it using the given prompt.
      *
-     * @param UploadedFile $file The uploaded MP4 video file.
-     * @param string $prompt The prompt describing what you want to ask about the video.
-     * 
-     * @return string|null The generated AI description or null on failure.
+     * @param UploadedFile $file The uploaded file (PDF or MP4).
+     * @param string $prompt The prompt to guide content generation.
+     * @return string|null The generated content or null on failure.
      *
-     * @throws \Exception If the file is not MP4 or upload fails.
+     * @throws Exception If the upload or generation fails.
      */
     public function analyzeUploadedVideo(UploadedFile $file, string $prompt): ?string
     {
@@ -265,6 +261,14 @@ class GeminiService
         }
     }
 
+    /**
+     * Simulate a function call (e.g. multiply) using Gemini tools and structured prompts.
+     *
+     * @param string $prompt The user's prompt invoking the function.
+     * @return string The Gemini model's response after the function execution.
+     *
+     * @throws RuntimeException If the function call fails.
+     */
     public function handleFunctionCall(string $prompt): string
     {
         $schema = ResponseSchema::get('multiply');
@@ -332,6 +336,14 @@ class GeminiService
         }
     }
 
+    /**
+     * Generate content using Gemini with predefined safety settings and generation config.
+     *
+     * @param string $prompt The user prompt to process.
+     * @return string The generated content.
+     *
+     * @throws RuntimeException If content generation fails.
+     */
     public function generateWithConfig(string $prompt): string
     {
         $model = $this->client
