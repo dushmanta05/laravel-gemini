@@ -184,23 +184,30 @@ class GeminiController extends Controller
 
         $chat = $chatId ? Chat::find($chatId) : Chat::create();
 
-        $response = $this->geminiService->generateContent($message);
-
-        if (!$response) {
-            return response()->json(['error' => 'Failed to get a valid response from Gemini'], 500);
+        if (!$chat) {
+            return response()->json(['error' => 'Chat not found'], 404);
         }
 
+        $previousMessages = ChatMessage::where('chat_id', $chat->id)
+            ->orderBy('created_at')
+            ->get();
+
+        $responseText = $this->geminiService->getResponseWithHistory($message, $previousMessages);
+
+        if (!$responseText) {
+            return response()->json(['error' => 'Failed to get a valid response from Gemini'], 500);
+        }
 
         ChatMessage::create([
             'chat_id' => $chat->id,
             'user' => $message,
-            'model' => $response,
+            'model' => $responseText,
         ]);
 
         return response()->json([
-            'chat_id' => $chatId,
+            'chat_id' => $chat->id,
             'message' => $message,
-            'response' => $response
+            'response' => $responseText
         ]);
     }
 }

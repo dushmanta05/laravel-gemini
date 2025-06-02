@@ -2,15 +2,20 @@
 
 namespace App\Services;
 
+use Exception;
 use Gemini;
+use Gemini\Data\Content;
 use Gemini\Data\GenerationConfig;
 use Gemini\Enums\FileState;
 use Gemini\Enums\ResponseMimeType;
 use Gemini\Data\Schema;
 use Gemini\Data\Blob;
 use Gemini\Enums\MimeType;
+use Gemini\Enums\Role;
 use Illuminate\Http\UploadedFile;
 use Gemini\Data\UploadedFile as GeminiUploadedFile;
+use Illuminate\Support\Collection;
+use RuntimeException;
 
 class GeminiService
 {
@@ -62,7 +67,7 @@ class GeminiService
                 ->generateContent($prompt);
 
             return json_decode(json_encode($result->json()), true);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }
@@ -88,7 +93,7 @@ class GeminiService
             };
 
             if (!$mimeType) {
-                throw new \Exception('Unsupported image MIME type');
+                throw new Exception('Unsupported image MIME type');
             }
 
             $blob = new Blob(
@@ -104,7 +109,7 @@ class GeminiService
                 ]);
 
             return $result->text();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }
@@ -121,7 +126,7 @@ class GeminiService
         $mimeType = match ($file->getMimeType()) {
             'application/pdf' => MimeType::APPLICATION_PDF,
             'video/mp4' => MimeType::VIDEO_MP4,
-            default => throw new \Exception('Unsupported MIME type: ' . $file->getMimeType()),
+            default => throw new Exception('Unsupported MIME type: ' . $file->getMimeType()),
         };
 
         $meta = $this->client->files()->upload(
@@ -136,7 +141,7 @@ class GeminiService
         } while (!$meta->state->complete());
 
         if ($meta->state === FileState::Failed) {
-            throw new \Exception('File processing failed for ' . $file->getClientOriginalName());
+            throw new Exception('File processing failed for ' . $file->getClientOriginalName());
         }
 
         return new GeminiUploadedFile(
@@ -189,5 +194,43 @@ class GeminiService
             ]);
 
         return $result->text();
+    }
+
+    /**
+     * Build Gemini chat history from previous messages
+     *
+     * @param Collection $messages
+     * @return array
+     */
+    private function buildChatHistory(Collection $messages): array
+    {
+        return $messages->flatMap(fn($msg) => [
+            Content::parse($msg->user, role: Role::USER),
+            Content::parse($msg->model, role: Role::MODEL),
+        ])->toArray();
+    }
+
+    /**
+     * Start a chat session with memory and return the AI's reply
+     *
+     * @param string $message
+     * @param Collection $historyMessages
+     * @return string
+     */
+    public function getResponseWithHistory(string $message, Collection $historyMessages): string
+    {
+        $history = $this->buildChatHistory($historyMessages);
+
+        try {
+            $chat = $this->client
+                ->generativeModel($this->model)
+                ->startChat(history: $history);
+
+            $response = $chat->sendMessage($message);
+
+            return $response->text();
+        } catch (Exception $e) {
+            throw new RuntimeException('An unexpected error occurred: ' . $e->getMessage());
+        }
     }
 }
