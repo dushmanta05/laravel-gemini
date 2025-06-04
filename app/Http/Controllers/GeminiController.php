@@ -28,6 +28,36 @@ class GeminiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
+
+    /**
+     * @OA\Post(
+     *     path="/api/gemini/generate",
+     *     summary="Generate a response using Gemini",
+     *     tags={"Gemini"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"message"},
+     *             @OA\Property(property="message", type="string", example="Hello, how are you?")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="response", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Message is required")
+     *         )
+     *     )
+     * )
+     */
     public function generateResponse(Request $request): JsonResponse
     {
         $message = $request->input('message');
@@ -49,6 +79,37 @@ class GeminiController extends Controller
      *
      * @param Request $request
      * @return JsonResponse
+     */
+
+    /**
+     * @OA\Post(
+     *     path="/api/gemini/generate-structured",
+     *     summary="Generate a structured response using Gemini",
+     *     tags={"Gemini"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"message", "schema_type"},
+     *             @OA\Property(property="message", type="string", example="Explain quantum physics"),
+     *             @OA\Property(property="schema_type", type="string", example="educational")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="response", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
      */
     public function generateStructuredResponse(Request $request): JsonResponse
     {
@@ -87,6 +148,40 @@ class GeminiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
+
+    /**
+     * @OA\Post(
+     *     path="/api/gemini/generate-with-image",
+     *     summary="Generate response with image analysis",
+     *     tags={"Gemini"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"message", "image"},
+     *                 @OA\Property(property="message", type="string", example="What's in this image?"),
+     *                 @OA\Property(property="image", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="response", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function generateResponseWithImage(Request $request): JsonResponse
     {
         $prompt = $request->input(key: 'message');
@@ -118,6 +213,40 @@ class GeminiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
+
+    /**
+     * @OA\Post(
+     *     path="/api/gemini/analyze-with-file",
+     *     summary="Analyze uploaded file (PDF/MP4)",
+     *     tags={"Gemini"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"message", "file"},
+     *                 @OA\Property(property="message", type="string", example="Analyze this document"),
+     *                 @OA\Property(property="file", type="string", format="binary", description="PDF or MP4 file")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful analysis",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="response", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function analyzeUploadedFile(Request $request): JsonResponse
     {
         $prompt = $request->input('message');
@@ -148,6 +277,40 @@ class GeminiController extends Controller
      *
      * @param Request $request
      * @return JsonResponse
+     */
+
+    /**
+     * @OA\Post(
+     *     path="/api/gemini/analyze-video",
+     *     summary="Analyze MP4 video file",
+     *     tags={"Gemini"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"message", "video"},
+     *                 @OA\Property(property="message", type="string", maxLength=255, example="Describe this video"),
+     *                 @OA\Property(property="video", type="string", format="binary", description="MP4 video file (max 10MB)")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful video analysis",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="description", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="object")
+     *         )
+     *     )
+     * )
      */
     public function analyzeVideoFile(Request $request): JsonResponse
     {
@@ -181,6 +344,38 @@ class GeminiController extends Controller
      *
      * @param Request $request
      * @return JsonResponse
+     */
+
+    /**
+     * @OA\Post(
+     *     path="/api/gemini/chat",
+     *     summary="Generate chat response with history",
+     *     tags={"Chat"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"message"},
+     *             @OA\Property(property="message", type="string", example="Hello, how are you?"),
+     *             @OA\Property(property="chat_id", type="string", format="uuid", nullable=true, example="550e8400-e29b-41d4-a716-446655440000")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful chat response",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="chat_id", type="string", format="uuid"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="response", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Chat not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Chat not found")
+     *         )
+     *     )
+     * )
      */
     public function generateChatResponse(Request $request): JsonResponse
     {
@@ -227,6 +422,30 @@ class GeminiController extends Controller
      * @param Request $request
      * @return Response
      */
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/gemini/stream",
+     *     summary="Stream content from Gemini in real-time",
+     *     description="Returns server-sent events stream. Best tested with cURL or EventSource, not typical API clients. Example: curl -N -X POST http://127.0.0.1:8000/api/gemini/stream -H 'Content-Type: application/json' -d '{""message"": ""Write a story on Gemini.""}' The -N flag disables buffering for real-time streaming.",
+     *     tags={"Gemini"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"message"},
+     *             @OA\Property(property="message", type="string", example="Tell me a story")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Server-sent events stream (use cURL or EventSource)",
+     *         @OA\MediaType(
+     *             mediaType="text/event-stream"
+     *         )
+     *     )
+     * )
+     */
     public function streamResponse(Request $request)
     {
         $request->validate([
@@ -258,6 +477,36 @@ class GeminiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
+
+    /**
+     * @OA\Post(
+     *     path="/api/gemini/function-call",
+     *     summary="Handle function call with Gemini",
+     *     tags={"Gemini"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"message"},
+     *             @OA\Property(property="message", type="string", example="Call the weather function for New York")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Function call response",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="response", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function callFunction(Request $request): JsonResponse
     {
         $request->validate([
@@ -284,6 +533,28 @@ class GeminiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
+
+    /**
+     * @OA\Post(
+     *     path="/api/gemini/count-tokens",
+     *     summary="Count tokens in a message",
+     *     tags={"Utilities"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"message"},
+     *             @OA\Property(property="message", type="string", example="Hello world, how are you doing today?")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Token count",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="tokens", type="integer", example=8)
+     *         )
+     *     )
+     * )
+     */
     public function countTokensInPrompt(Request $request)
     {
         $request->validate([
@@ -301,6 +572,37 @@ class GeminiController extends Controller
      * @param Request $request
      * @param GeminiService $geminiService
      * @return JsonResponse
+     */
+
+    /**
+     * @OA\Post(
+     *     path="/api/gemini/generate-with-config",
+     *     summary="Generate response with custom configuration",
+     *     tags={"Gemini"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"message"},
+     *             @OA\Property(property="message", type="string", example="Generate creative content")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response with config",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="output", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
      */
     public function generateWithConfig(Request $request, GeminiService $geminiService)
     {

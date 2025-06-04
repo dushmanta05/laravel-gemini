@@ -1,0 +1,660 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Laravel Gemini",
+        "description": "API for interacting with Gemini AI services",
+        "contact": {
+            "email": "dushbehera05@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://my-default-host.com",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api/gemini/generate": {
+            "post": {
+                "tags": [
+                    "Gemini"
+                ],
+                "summary": "Generate a response using Gemini",
+                "operationId": "831dfab21f51744f0e6496ba3ee4f154",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Hello, how are you?"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "response": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Message is required"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/gemini/generate-structured": {
+            "post": {
+                "tags": [
+                    "Gemini"
+                ],
+                "summary": "Generate a structured response using Gemini",
+                "operationId": "1ed750ffcc0e78a80bac85909b54ec86",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message",
+                                    "schema_type"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Explain quantum physics"
+                                    },
+                                    "schema_type": {
+                                        "type": "string",
+                                        "example": "educational"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "response": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/gemini/generate-with-image": {
+            "post": {
+                "tags": [
+                    "Gemini"
+                ],
+                "summary": "Generate response with image analysis",
+                "operationId": "0b04453a55e2a9d36527ea3ea57a6152",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "message",
+                                    "image"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "What's in this image?"
+                                    },
+                                    "image": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "response": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/gemini/analyze-with-file": {
+            "post": {
+                "tags": [
+                    "Gemini"
+                ],
+                "summary": "Analyze uploaded file (PDF/MP4)",
+                "operationId": "defe02cc0c3ab2cbf2334990a143b525",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "message",
+                                    "file"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Analyze this document"
+                                    },
+                                    "file": {
+                                        "description": "PDF or MP4 file",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful analysis",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "response": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/gemini/analyze-video": {
+            "post": {
+                "tags": [
+                    "Gemini"
+                ],
+                "summary": "Analyze MP4 video file",
+                "operationId": "b0fc253178c87519c0fdd0cdc52fe9f4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "message",
+                                    "video"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Describe this video"
+                                    },
+                                    "video": {
+                                        "description": "MP4 video file (max 10MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful video analysis",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/gemini/chat": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Generate chat response with history",
+                "operationId": "17c33b5dcf10b7ce5f440454253d8619",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Hello, how are you?"
+                                    },
+                                    "chat_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful chat response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "chat_id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "response": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Chat not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Chat not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/gemini/stream": {
+            "post": {
+                "tags": [
+                    "Gemini"
+                ],
+                "summary": "Stream content from Gemini in real-time",
+                "description": "Returns server-sent events stream. Best tested with cURL or EventSource, not typical API clients. Example: curl -N -X POST http://127.0.0.1:8000/api/gemini/stream -H 'Content-Type: application/json' -d '{\"message\": \"Write a story on Gemini.\"}' The -N flag disables buffering for real-time streaming.",
+                "operationId": "8a93d598eee0f8b4c2ec605c06d83e7a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Tell me a story"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Server-sent events stream (use cURL or EventSource)",
+                        "content": {
+                            "text/event-stream": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/gemini/function-call": {
+            "post": {
+                "tags": [
+                    "Gemini"
+                ],
+                "summary": "Handle function call with Gemini",
+                "operationId": "b4eb453a6220b5a9c7cfafdc6e1d067f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Call the weather function for New York"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Function call response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "response": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/gemini/count-tokens": {
+            "post": {
+                "tags": [
+                    "Utilities"
+                ],
+                "summary": "Count tokens in a message",
+                "operationId": "aee1acb84bd84427f8994f2a965b7289",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Hello world, how are you doing today?"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Token count",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "tokens": {
+                                            "type": "integer",
+                                            "example": 8
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/gemini/generate-with-config": {
+            "post": {
+                "tags": [
+                    "Gemini"
+                ],
+                "summary": "Generate response with custom configuration",
+                "operationId": "890b2f0d10c2e91d004a57c19bcc31ef",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message"
+                                ],
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Generate creative content"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response with config",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "output": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Gemini",
+            "description": "Gemini"
+        },
+        {
+            "name": "Chat",
+            "description": "Chat"
+        },
+        {
+            "name": "Utilities",
+            "description": "Utilities"
+        }
+    ]
+}
