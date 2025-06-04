@@ -1,6 +1,6 @@
 # Laravel Gemini
 
-Demo Laravel project showcasing various ways to integrate Google’s Gemini AI models using a dedicated service class. It supports generating text, analyzing images, videos, and files, streaming responses, function calling, structured responses, and token counting.
+Demo Laravel project showcasing various ways to integrate **Google's Gemini AI** models using the [Gemini PHP](https://github.com/google-gemini-php/client) package. In this demo, I've illustrated implementations for generating text, analyzing images, videos, and files, streaming responses, function calling, structured responses, and token counting.
 
 ## Features Implemented
 
@@ -23,6 +23,15 @@ Demo Laravel project showcasing various ways to integrate Google’s Gemini AI m
 -   Count tokens in a given prompt
 
 -   Customize configuration for the Gemini API
+
+## Acknowledgments
+
+Special thanks to the authors of the Laravel Gemini Client package:
+
+-   [Fatih AYDIN](https://github.com/aydinfatih)
+-   [Vytautas Smilingis](https://github.com/plytas)
+
+Their excellent work made this integration seamless and efficient.
 
 ## Setup & Installation
 
@@ -58,7 +67,7 @@ Demo Laravel project showcasing various ways to integrate Google’s Gemini AI m
 
 6.  Set your Gemini API key and model in `.env`
 
-    ```
+    ```env
     GEMINI_API_KEY=your_api_key_here
     GEMINI_MODEL=gemini-2.0-flash
     ```
@@ -69,9 +78,15 @@ Demo Laravel project showcasing various ways to integrate Google’s Gemini AI m
     php artisan migrate
     ```
 
+8.  Start the development server
+
+    ```
+    php artisan serve
+    ```
+
 ## API & Usage
 
-This project includes a centralized GeminiController with multiple routes and methods for:
+This project includes a centralized _GeminiController_ with multiple routes and methods for:
 
 -   **Prompting** - Basic text generation with Gemini
 
@@ -90,3 +105,39 @@ This project includes a centralized GeminiController with multiple routes and me
 -   **File upload to Gemini storage** - Secure file handling for large media analysis
 
 -   **Custom configuration** - Advanced safety settings and generation parameters
+
+## API Test Collection
+
+This project includes interactive _Swagger/OpenAPI_ documentation for all endpoints.
+
+1. Configure the API base URL in your `.env` file:
+
+    ```env
+    L5_SWAGGER_HOST=127.0.0.1:8000
+    ```
+
+2. Generate the API documentation:
+
+    ```bash
+    php artisan l5-swagger:generate
+    ```
+
+3. Start the development server (if not already running):
+
+    ```
+    php artisan serve
+    ```
+
+4. Access the interactive API documentation at:
+
+    ```
+    http://127.0.0.1:8000/api/documentation
+    ```
+
+Note: For streaming endpoints (like `/api/gemini/stream`), use **cURL** for testing as they return Server-Sent Events which aren't well supported by typical API clients:
+
+```bash
+curl -N -X POST http://127.0.0.1:8000/api/gemini/stream \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Write a story on Gemini."}'
+```
